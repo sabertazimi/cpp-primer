@@ -15,7 +15,9 @@ addons:
       # - libconfig-dev
 
 env:
-  - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+  - BUILD_TYPE=Release
+  - COMPILER_VER=7
+  - GEN_DOC=TRUE
 
 cache:
   directories:
@@ -25,13 +27,41 @@ before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
 
 before_install:
-  - eval "${MATRIX_EVAL}"
+  - if [[ "${COMPILER_VER}" != "" ]]; then export CXX=${CXX}-${COMPILER_VER}; fi
+  - if [[ "${COMPILER_VER}" != "" ]]; then export CC=${CC}-${COMPILER_VER}; fi
+  - if [[ "${COMPILER_VER}" != "" ]]; then export GCOV=gcov-${COMPILER_VER}; fi
   - sudo pip install cpplint
 
 script:
-  # - make lint
-  - make
-  - make clean
+  - ${CXX} --version
+  - echo CXXFLAGS=${CXXFLAGS}
+  - |
+    if [[ "$BUILD_TYPE" == "Coverage" ]]; then
+      ctest -S cmake/CI.CTestScript.cmake --output-on-failure -VV -DCTEST_SITE=Travis -DCTEST_BUILD_NAME="${TRAVIS_OS_NAME}-$BUILD_TYPE"
+    else
+      mkdir build && cd build && \
+      cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. && \
+      make -j4 && \
+      ctest -VV .
+    fi
+  - |
+    if [[ "$GEN_DOC" == "TRUE" ]]; then
+      cmake --build . --target doc
+    fi
+#   - make lint
 
 after_success:
     - echo "[SUCCESS]"
+    # - |
+    # if [[ "$BUILD_TYPE" == "Coverage" ]]; then
+    #   bash <(curl -s https://codecov.io/bash) -X gcov || echo "Codecov did not collect coverage reports"
+    # fi
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  local-dir: build/html
+  on:
+    branch: master
+    condition: $GEN_DOC = TRUE
