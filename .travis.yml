@@ -1,0 +1,37 @@
+sudo: require
+language: cpp
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake-data
+      - cmake
+      - make
+      - g++-7
+      # - libboost-all-dev
+      # - libnuma-dev
+      # - libconfig-dev
+
+env:
+  - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+
+cache:
+  directories:
+    - pip
+    - $HOME/.cache/pip
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+  - sudo pip install cpplint
+
+script:
+  # - make lint
+  - make
+  - make clean
+
+after_success:
+    - echo "[SUCCESS]"
