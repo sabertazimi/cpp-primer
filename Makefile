@@ -5,13 +5,14 @@
 SHELL := /bin/bash
 RM    := rm -rf
 MKDIR := mkdir -p
+BUILD_TYPE :=Release
 
 all: ./build/Makefile
-	@ $(MAKE) -C build
+	@ $(MAKE) -C build -j4
 
 ./build/Makefile:
 	@  ($(MKDIR) build > /dev/null)
-	@  (cd build > /dev/null 2>&1 && cmake ..)
+	@  (cd build > /dev/null 2>&1 && cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) ..)
 
 clean:
 	@  ($(MKDIR) build > /dev/null)

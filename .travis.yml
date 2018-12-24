@@ -6,10 +6,10 @@ addons:
       - george-edison55-precise-backports
       - ubuntu-toolchain-r-test
     packages:
-      - cmake-data
-      - cmake
-      - make
       - g++-7
+      - make
+      # - cmake-data
+      # - cmake
       # - libboost-all-dev
       # - libnuma-dev
       # - libconfig-dev
@@ -28,6 +28,22 @@ before_install:
   - if [[ "${COMPILER_VER}" != "" ]]; then export CXX=${CXX}-${COMPILER_VER}; fi
   - if [[ "${COMPILER_VER}" != "" ]]; then export CC=${CC}-${COMPILER_VER}; fi
   - if [[ "${COMPILER_VER}" != "" ]]; then export GCOV=gcov-${COMPILER_VER}; fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      mkdir -p $HOME/.local
+      CMAKE_URL="http://cmake.org/files/v3.9/cmake-3.9.0-Linux-x86_64.tar.gz"
+      if [ ! -e $HOME/.local/bin/cmake ]; then
+          echo "CMake not found in the cache, get and extract it..."
+          travis_retry curl -L ${CMAKE_URL} \
+              | tar -xz -C $HOME/.local --strip-components=1
+      else
+          echo "Using cached CMake"
+      fi
+    fi
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      brew update && brew upgrade cmake
+    fi
   - sudo pip install cpplint
 
 script:
@@ -46,14 +62,14 @@ script:
     if [[ "$GEN_DOC" == "TRUE" ]]; then
       cmake --build . --target doc
     fi
-#   - make lint
+  # - make lint
 
 after_success:
     - echo "[SUCCESS]"
-    # - |
-    # if [[ "$BUILD_TYPE" == "Coverage" ]]; then
-    #   bash <(curl -s https://codecov.io/bash) -X gcov || echo "Codecov did not collect coverage reports"
-    # fi
+    - |
+      if [[ "$BUILD_TYPE" == "Coverage" ]]; then
+        bash <(curl -s https://codecov.io/bash) -X gcov || echo "Codecov did not collect coverage reports"
+      fi
 
 deploy:
   provider: pages
