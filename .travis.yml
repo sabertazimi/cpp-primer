@@ -8,6 +8,7 @@ addons:
     packages:
       - g++-7
       - make
+      - doxygen
       # - cmake-data
       # - cmake
       # - libboost-all-dev
