@@ -15,9 +15,7 @@ addons:
       # - libconfig-dev
 
 env:
-  - BUILD_TYPE=Release
-  - COMPILER_VER=7
-  - GEN_DOC=TRUE
+  - BUILD_TYPE=Release COMPILER_VER=7 GEN_DOC=TRUE
 
 cache:
   directories:
