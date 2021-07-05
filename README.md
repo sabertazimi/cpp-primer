@@ -1,7 +1,5 @@
 # cpp-primer
 
-[![Build Status](https://travis-ci.org/sabertazimi/cpp-primer.svg?branch=master)](https://travis-ci.org/sabertazimi/cpp-primer)
-
 C++ Learning
 
 [![Author](https://img.shields.io/badge/author-sabertazimi-lightgrey.svg)](https://github.com/sabertazimi)
